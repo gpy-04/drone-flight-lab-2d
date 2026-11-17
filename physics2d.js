@@ -1,0 +1,12 @@
+/* SI units, y upward. Quasi-steady teaching aerodynamics; not a certified flight model. */
+window.FlightPhysics=(()=>{
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),rad=d=>d*Math.PI/180,wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
+const spec=Object.freeze({mass:2,wing:.5,rho:1.225,g:9.81,clSlope:4.8,cl0:.05,stall:rad(15),cd0:.035,induced:.075,maxThrust:8});
+function coefficients(alpha){alpha=wrap(alpha);const a=Math.abs(alpha),sign=Math.sign(alpha)||1,linear=spec.cl0+spec.clSlope*alpha,peak=spec.cl0+spec.clSlope*spec.stall,post=sign*(peak*Math.exp(-3.6*(a-spec.stall))+.35*Math.sin(2*a)),blend=clamp((a-spec.stall)/rad(4),0,1),cl=clamp(linear*(1-blend)+post*blend,-1.55,1.55),cd=spec.cd0+spec.induced*cl*cl+1.1*Math.sin(alpha)**2*blend;return {cl,cd,stalled:a>spec.stall};}
+function forces(p,wind={x:0,y:0},throttle=.5,canopy=0){const ux=p.vx-wind.x,uy=p.vy-wind.y,v=Math.hypot(ux,uy),gamma=Math.atan2(uy,ux),alpha=wrap(p.pitch-gamma),a=coefficients(alpha),q=.5*spec.rho*v*v,lift=q*spec.wing*a.cl*(1-.7*canopy),drag=q*(spec.wing*a.cd+2.6*canopy),ex=v>1e-8?ux/v:1,ey=v>1e-8?uy/v:0,thrust=clamp(throttle,0,1)*spec.maxThrust;return {x:-ey*lift-ex*drag+Math.cos(p.pitch)*thrust,y:ex*lift-ey*drag+Math.sin(p.pitch)*thrust-spec.mass*spec.g,airspeed:v,lift,drag,alpha,gamma,stalled:a.stalled,wind:{...wind},gravity:spec.mass*spec.g};}
+function step(p,dt,wind,throttle,canopy=0){const f=forces(p,wind,throttle,canopy);p.vx+=f.x/spec.mass*dt;p.vy+=f.y/spec.mass*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;return f;}
+function trim(speed=16){const q=.5*spec.rho*speed*speed*spec.wing;let pitch=(spec.mass*spec.g/q-spec.cl0)/spec.clSlope,throttle=0;for(let i=0;i<12;i++){const a=coefficients(pitch),drag=q*a.cd;throttle=drag/(spec.maxThrust*Math.cos(pitch));const cl=(spec.mass*spec.g-drag*Math.tan(pitch))/q;pitch=(cl-spec.cl0)/spec.clSlope;}return {pitch,throttle};}
+function terrain(x,l=0){return 8+(l===2?35:25)*Math.exp(-(((x-270)/110)**2))+18*Math.exp(-(((x-620)/135)**2))+(l===2?15*Math.exp(-(((x-920)/100)**2)):0);}
+function slope(x,l){return (terrain(x+1,l)-terrain(x-1,l))/2;}
+function wind(x,y,l=0,t=0){const night=l===1,base=night?-2.4:2.3,local=1.1*Math.exp(-(((x-280)/200)**2)),u=base+(night?-local:local),near=Math.exp(-Math.max(0,y-terrain(x,l))/90);return {x:u+(l===2?.65*Math.sin(t*.7+x/100):0),y:clamp(u*slope(x,l)*near,-1.5,1.5)+(l===2?.2*Math.sin(t*.9):0)};}
+return {spec,rad,wrap,clamp,coefficients,forces,step,trim,terrain,slope,wind};})();

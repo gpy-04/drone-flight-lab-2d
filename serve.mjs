@@ -1,0 +1,6 @@
+import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+const root=import.meta.dirname;const port=Number(process.env.PORT||4188);
+const types={'.mp4':'video/mp4','.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.ttf':'font/ttf','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.json':'application/json; charset=utf-8'};
+http.createServer((req,res)=>{let name;try{name=decodeURIComponent(new URL(req.url,'http://localhost').pathname)}catch{return res.writeHead(400).end()};if(name==='/')name='/index.html';const file=path.resolve(root,'.'+name);if(!file.startsWith(root+path.sep))return res.writeHead(403).end();fs.readFile(file,(err,data)=>{if(err){res.writeHead(404,{'Content-Type':'text/html; charset=utf-8'}).end('<!doctype html><html lang="zh-CN"><title>页面未找到</title><body style="background:#081519;color:#bcf768;font:20px Microsoft YaHei;padding:80px"><h1>这条航线还没有开放</h1><p>页面未找到。</p><a style="color:#6bddd0" href="/">返回飞行社 →</a></body></html>');return}res.writeHead(200,{'Content-Type':types[path.extname(file)]||'application/octet-stream'});res.end(data)})}).listen(port,'127.0.0.1',()=>console.log(`Drone games: http://127.0.0.1:${port}/`));
