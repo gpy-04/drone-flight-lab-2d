@@ -9,6 +9,7 @@
     "dev": "node serve.mjs",
     "test": "node v3-model-check.mjs && node v3-browser-check.mjs",
     "test:offline": "node v3-browser-check.mjs --built",
+    "test:review": "node v3-review-check.mjs",
     "test:science": "node v3-science-check.mjs",
     "test:smoke": "node v3-browser-check.mjs --smoke",
     "test:visual": "node v3-browser-check.mjs --visual",

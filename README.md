@@ -1,6 +1,14 @@
-# 无人机未来飞行社 · 3.0 全 2D 重构
+# 无人机未来飞行社 · 杭州赛博朋克版
 
 八关无人机科学与城市空域探索。面向 10–14 岁，全部游戏画面使用 Canvas 2D。无需联网即可游玩。
+
+在线游玩：https://gpy-04.github.io/drone-flight-lab-2d/
+
+当前版本采用深蓝黑底与青紫霓虹。杭州西湖、三潭印月、雷峰塔和钱江新城照片融入游戏背景；背景压暗，航路、地块边界、操作控件和任务数据保持清晰。照片只作城市装饰，关卡地形与空域范围为虚拟教学示意。
+
+通关评分弹窗自动展示“AI 飞行总结”。总结由本机规则根据本次操作记录和模型数据生成，不调用 AI 模型、API 或外部服务。每关显示实际表现、关键数据、改进建议、科学发现和可展开操作记录。长内容支持鼠标滚轮、触摸和键盘滚动，评分标题及下一关、重试按钮保持可见。
+
+最佳成绩对应的总结保存在本机飞行档案，并可导出独立 HTML。旧成绩无需总结字段也能正常读取。操作演示显示独立复盘，不写入玩家成绩；原有课程、玩法、评分和物理规则保持不变。
 
 入口：
 - 源文件：index.html
@@ -39,6 +47,7 @@
 ## 验证
 - npm test：模型 24 路线 + 浏览器 24 控件通关，闲置、暂停、报告与存档
 - npm run test:offline：离线成品同样的浏览器操作验证
+- npm run test:review：离线真实通关、总结数据、滚轮与键盘、手机布局、最佳成绩、提醒与扣分区分、演示隔离、档案导出和旧存档兼容
 - npm run test:science：气动、昼夜风、开伞、配件、规则、边界、难度与辅助不变量
 - npm run test:practice：每款第三任务真实失败 12 次，开启辅助后实际操作通关
 - npm run test:smoke：Chrome 真实加载、闲置、鼠标及键盘输入
@@ -50,7 +59,7 @@
 
 双击 dist/index.html 即可离线游玩；开发时运行 npm run dev。服务器仅提供本仓库内的文件，PORT 环境变量可修改默认 4188 端口。
 
-源码：reboot-content.js / physics2d.js / reboot-art.js / reboot-games.js / reboot-app.js / reboot.css。
+源码：reboot-content.js / physics2d.js / reboot-art.js / reboot-games.js / flight-review.js / reboot-app.js / reboot.css。
 
 ![八关实际运行画面](docs/eight-games-preview.png)
 
